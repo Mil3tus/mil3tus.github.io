@@ -1,0 +1,276 @@
+A maioria dos protocolos de rede são compostos por um cabeçalho e uma área de dados.
+
+**Header** - Cabeçalho *(Estrutura específica)*
+**Payload** - Área de Dados *(Informações que o protocolo carrega)*
+
+Um *frame* ethernet contém um pacote IP que contém um segmento TCP que contém os dados com o protocolo http
+
+***
+## Protocolo Ethernet
+O Protocolo Ethernet possui endereços físicos de rede, observe a sua estrutura:
+
+**Mac de Destino** | **Mac de Origem** | **Tipo** | **Payload** | **Checksum**
+
+**Mac de Destino** : Endereço MAC do dispositivo de destino.
+**Mac de Origem**: Endereço MAC de quem está enviando a mensagem.
+**Tipo**: Seleciona qual será utilizado na comunicação, exemplo: 0800 = **IP**, 0806 = **ARP**
+
+Uma informação importante, é que o **payload** do protocolo Ethernet contém os dados a serem transportados, e seu tamanho máximo é de **1500 bytes**. Quando um pacote enviado é maior que o valor máximo, acontece a **fragmentação do pacote** (ele é dividido em várias partes).
+
+Sempre que aparecer o endereço: **ff:ff:ff:ff:ff:ff**, quer dizer que você está enviando uma mensagem para **todos os dispositivos da rede**.
+
+***
+## Protocolo ARP
+O Protocolo ARP tem a habilidade de descobrir qual endereço MAC está associado a um determinado IP.
+Para fazer isso, ele utiliza o **ARP Request** e o **Arp Reply**
+O **Arp Request** pergunta quem tem um **determinado IP** na rede e qual o seu **endereço MAC**.
+
+O **Arp Reply** é a resposta enviada pelo host que tem o IP requisitado, ao responder o **Arp Request** o host envia o seu **endereço MAC**.
+
+**IMPORTANTE: O Host que recebe a resposta com o enderçeo IP e MAC, o armazena por um tempo.**
+
+***
+## Protocolo IP
+
+O Protocolo IP é responsável por **realizar entrega de pacotes**, lembrando que ele **NÃO É UM PROTOCOLO CONFIÁVEL**, sendo necessário utilizá-lo com outros protocolos para que a entrega tenha um mínimo de confiabilidade:
+
+**IP + TCP** = Confiabilidade
+**IP + UDP** = Velocidade
+***
+## Protocolo TCP
+O Protocolo TCP é utilizado para **transporte**, sendo um protocolo **confiável**. Ele é orientado a conexão, isso significa que antes de enviar os dados ele verifica se a conexão está realmente estabelecida, esse processo é conhecido também como **Three-Way Handshake**.
+Um outro detalhe importante sobre o protocolo, é que ele se comunica com **portas**.
+
+#### Flags TCP
+
+**SYN** -> Indica sincronizar, ou melhor, iniciar uma conexão entre dois lados envolvidos.
+**FIN** -> Indica finalizar, ou seja, a conexão ser fechada.
+**RST** -> Indica resetar, quando uma comunicação não é entendida ou ocorreu algum erro.
+**PSH** -> Indica que existem dados (**payloads TCP**) na mensagem.
+**ACK** -> Faz a confirmação indicando que sabe qual será o próximo número de sequência
+**URG** -> Indica urgência, o conteúdo deve ser priorizado.
+
+#### Como funciona o Three Way Handshake?
+
+Cliente -> **SYN** -> Servidor (Web)
+Client <- **SYN/ACK** <- Servidor (Web)
+Client -> **ACK** -> Servidor (Web)
+
+
+**Escaneamento de Portas**
+
+É comum ao escanear portas de um servidor, que o programa nos informe que há um serviço ativo, no entanto sua porta está **fechada**.
+
+**PORT** **STATE** **SERVICE**  
+7/tcp open echo  
+23/tcp open telnet  
+80/tcp **close** http
+
+Se a ferramenta envia um **SYN** para o servidor, e ele responde com um **SYN/ACK**, é porque a porta está aberta.  
+Se a ferramenta envia um **SYN** para o servidor, mas ele **não responde nada** ou demora muito tempo para responder, pode ser que esta porta esteja **filtrada**.  
+Mas se o servido responde com **RST/ACK**, significa que a porta está **fechada**.
+
+***
+## Protocolo UDP
+
+O Protocolo UDP, assim como o TCP, é um protocolo de transporte de dados, no entanto, **ele não garante a entrega dos dados**.  
+Ou seja, **ele não é um protocolo orientado a conexão**, não sendo necessário estabelecê-la para começar a transmitir.  
+Por esse motivo, ele se faz mais eficiente na **rapidez** de entrega dos pacotes, sendo um protocolo utilizado principalmente onde é necessário o envio rápido de dados, exemplo: **Comunicação VOIP**, **Streaming de Rádio**, **Streaming de Vídeo**...
+
+***
+## Protocolo DHCP
+
+O **DHCP** (Dynamic Host Configuration Protocol) é padronizado pela **IETF** - Internet Engineering Task Force por meio dos RFCs (Requests For Comments) 1533, 1534, 1541 e 1542.  
+O **DHCP** pode operar de **três formas**:
+
+- **Automática** _(entregas automáticas dentro de uma faixa previamente configurada)_
+- **Dinâmica** _(Parecido com a automática, porém possui um delimitador de tempo para cada lease)_
+- **Manual** _(Aloca endereços conforme cadastro manual de MAC, forçando sempre o mesmo IP à um host.)_
+
+E todo esse processo, acontece em **4 etapas**
+
+1. O computador client envia por broadcast o pacote **DHCPDiscover**
+2. O server de DHCP responde com um pacote **DHCPOffer**
+3. O client recebe o DHCPOffer e requisita aquele endereço para si, enviando o pacote **DHCPRequest**
+4. Para finalizar o processo, o server de DHCP confirma a reserva do IP oferecido enviando o pacote **DHCPAck**
+
+**ESCOPO DHCP**  
+_O escorpo é um intervalo de endereços IP, disponíveis para uma rede. Os escopos normalmente definem uma sub-rede. No escopo é configurado as entregas de endereço IP, Máscara de Sub-rede, DNS, entre outras configurações_  
+**Exemplo:** 192.168.0.2 - 192.168.0.254 | 172.16.100.5 - 172.16.100.254
+
+**DHCP RELAY**  
+_Em uma rede com múltiplas Vlans, é necessário também possuir vários servidores DHCP, um em cada Vlan. Mas manter uma estrutura assim é complexa e despende muito tempo. Pode-se então utilizar o DHCP Relay para centralizar todos os escopos em um único servidor. No entanto, os equipamentos de rede precisam suportar essa tecnologia._
+
+***
+## Protocolo HTTP
+
+O Protocolo HTTP funciona através de trocas de requisições entre **cliente** e **servidor**.  
+A estrutura do HTTP é composta por um **Header** e um **Body**, e ele suporta vários métodos como **GET** **POST** **HEAD** **PUT** **DELETE** **OPTIONS**  
+Os mais utilizados são o **GET** e o **POST**  
+O protocolo funciona com requisições, por exemplo, as de solicitações são chamadas de **HTTP Request** e as de respostas, são chamadas de **HTTP Response**
+
+---
+
+## Protocolo HTTPS
+
+**Hypertext Transfer Protocol** (HTTP), é um protocolo de comunicação. O objetivo dele é estabelecer conexão entre sistemas. Ele é a base da comunicação de dados das aplicações Web.
+
+A versão **secure** (**HTTPS**), deste protocolo, possui uma **camada de segurança** e utiliza a tecologia **TLS** (Transport Layer Security) para transportar os dados de conexões.  
+Antigamente, utilizava-se o **SSL**, no entanto, ele se tornou uma tecnologia ultrapassada e não é considerada uma opção segura nos dias atuais.
+
+---
+
+## Protocolo ICMP
+
+O Protocolo ICMP é um protocolo de **alerta por mensagens**, ele emite avisos sobre a situação da rede e possui a seguinte estrutura:
+
+**Type** | **Code** | **Checksum**
+
+Para que o **Protocolo ICMP** entregue uma mensagem, ele utiliza o **Protocolo UDP**. Lembrando que, o **UDP** não possui nenhum tipo de controle, ou seja, se ele trabalhar sozinho, não é possível avisar os lados da conexão que houve um problema na comunicação.
+
+Para exemplificar, podemos imaginar uma conexão entre a **Máquina A** e **Máquina B**, neste caso a **Máquina A** tentou se conectar à **Máquina B** pela porta **7777** (utilizando o **Protocolo UDP**), o protocolo em si, não é capaz de informar à **Máquina A** que a porta **7777** não está aberta, então a **Máquina B** gera uma mensagem com o **código ICMP** apropriado e encaminha a mensagem à **Máquina A** para informar o erro na conexão.
+
+**IMPORTANTE:** Além do UDP, o **PING** também utiliza o **Protocolo ICMP** para entregar suas mensagens.
+
+#### Traceroute com ICMP
+
+Quando o **TTL** se torna 0 (o roteador utiliza o **protocolo ICMP** seleciona o pacote do **tipo 11** e **código 0**). Sendo assim, podemos manipular o **TTL** para descobrir a rota que o pacote percorre. 
+
+**Exemplo:** 
+```shell
+ping -c 1 -t 1 www.duckduckgo.com
+```
+
+A flag **-t** especifica o tamanho do **TTL**, quando esse pacote alcança o roteador, ele diminui o tamanho do **TTL** para **0**, descarta o pacote, ou seja, para que ele consiga chegar até o próximo destino, é necessário que o valor do **TTL** seja **2**, porque em cada destino o tempo de vida do **pacote é diminuído em -1**.  
+Por exemplo, se configurarmos o **TTL** para **5**, conseguimos traçar uma rota de conexão da nossa máquina **até os próximos 4 endereços**, e para continuar traçando basta ir aumentando o valor do **TTL** a cada pacote enviado (para ele chegar mais longe).
+
+#### Traceroute ([[Bypass Firewall]])
+
+Pode acontecer de ao executar o comando **traceroute**, o Firewall do destino acabe bloqueando os pacotes, sendo assim, o **endereço de IP** do alvo não aparecerá durante a execução do comando. Isso pode ocorrer devido ao **tipo de pacote e protocolo** que está sendo utilizado, no caso do **traceroute**, o protocolo padrão é o **UDP**.
+Para solucionar este problema, é possível especificar um outro protocolo de envio, como por exemplo o **ICMP**.
+
+**Pacotes Bloqueados**
+```shell
+traceroute businesscorp.com.br -n
+```
+
+```
+1  192.168.0.1  19.319 ms  23.511 ms  23.494 ms  
+2  10.11.0.1  42.813 ms  40.854 ms  44.284 ms 
+3  191.187.3.129  48.873 ms  49.621 ms  51.343 ms
+...
+24  * * *
+25  * * *
+
+``` 
+**Utilizando o Protocolo ICMP**
+```shell
+traceroute businesscorp.com.br -n -I
+```
+
+```
+1  192.168.0.1  2.347 ms  2.314 ms  4.046 ms
+2  10.11.0.1  11.105 ms  18.391 ms  14.952 ms  
+3  191.187.3.129  18.576 ms  18.702 ms  19.783 ms
+...
+24  * * *
+25  37.59.174.225  256.046 ms  255.997 ms  252.481 ms
+```
+
+É possível utilizar outros protocolos, como por exemplo o **TCP** com a flag **-T**, e é possível também selecionar qual porta ele enviará o pacote.
+
+```shell
+traceroute businesscorp.com.br -n -T -p 25
+```
+
+Neste caso, ele enviará o último pacote para a porta **25 (SMTP)**, se o servidor aceitar pacotes nesta porta, ele responderá ao pacote enviado.
+
+É interessante também testar o envio do pacote com a flag **-U** (que apesar de já utilizar o protoclo **UDP**, ele utiliza uma porta em específico, no caso a **53 (DNS)**). Ou seja, é possível que o servidor responda esse pacote, mesmo sendo através do protocolo **UDP**.
+
+```shell
+traceroute businesscorp.com.br -n -U
+```
+
+#### Descobrindo o Sistema Operacional Pelo Pacote ICMP / Ping
+
+Por padrão, os sistemas utilizam um valor de **TTL** na configuração de seus pacotes de rede, por exemlpo, o **Windows** configura o TTL para **128**, e o Linux configura para **64**, sendo assim, após realizar o comando ping, o valor mais próximo do **TTL** padrão de cada sistema, nos informa qual sistema operaconal está rodando na máquina alvo, exemplo:
+
+> ping -c 1 businesscorp.com.br
+
+```
+PING businesscorp.com.br (37.59.174.225) 56(84) bytes of data.
+64 bytes from ip225.ip-37-59-174.eu (37.59.174.225): icmp_seq=1 ttl=46 time=303 ms
+```
+
+Observe, que o **ttl=46**, ou seja, mais próximo de 64, sendo assim, trata-se de um **Sistema Linux**
+
+#### Realizando o Ping Sweep
+
+Essa técnica consiste em escanear a rede, ou determinada faixa de IP com o intuito de saber quais **hosts estão ativos**. Claro que outras técnicas devem ser consideradas (uma vez que o Firewall pode estar bloqueando pacotes ICMP), mas é uma boa tentar executar o comando.
+
+> for addr in (1..254);do ping -c 1 192.168.0.$addr | grep "64 bytes";done;
+
+```
+64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=7.32 ms
+64 bytes from 192.168.0.2: icmp_seq=1 ttl=64 time=4.16 ms 
+64 bytes from 192.168.0.6: icmp_seq=1 ttl=64 time=0.021 ms  
+64 bytes from 192.168.0.41: icmp_seq=1 ttl=64 time=333 ms
+```
+
+#### Realizando o ARP Sweep
+
+É importante ressaltar que essa técnica **só funciona em redes internas**, e para isso a ferramenta **arping** será utilizada. O **arping** é uma ferramenta muito semelhante ao **ping**, no entanto, ele envia os pacotes através do **protocolo ARP**. Uma outra coisa interessante, é que essa requisição é feita para o endereço **ff:ff:ff:ff:ff**, ou seja, ela envia essa requisição para **todos os dispositivos da rede**, e consequentemente o dispositivo acaba respondendo (fazendo com que seja possível descobrir a existência de determinado computador na rede mesmo com **regras de firewall aplicadas ao bloqueio de pacotes ICMP**).
+
+```shell
+arping -c 1 192.168.0.1
+```
+##### Comandos para Varredura na Rede com Arping
+
+```shell
+for subaddr in {0..254};do sudo arping -c 1 192.168.0.$subaddr | grep "60 bytes";done;
+```
+Uma alternativa ao script seria a ferramenta **arp-scan**
+
+```shell
+arpscan -l
+```
+***
+
+## Bytes na Rede (Interpretando Frames de Pacotes)
+
+**Informações Importantes**:
+
+- Os **6 primeiros bytes** são o MAC Address de destino da mensagem.
+- Logo em seguida, temos o Mac Address de Origem.
+- Os próximos **2 bytes** são compostos pelo protocolo que está sendo utilizado para entregar a mensagem.
+
+**Exemplo:**
+
+**D4 AB 82 45 C4 0C 00 0C 29 76 43 E1 08 00 45 00**
+
+Ou seja:  
+**Mac Address de Destino:** D4:AB:82:45:C4:0C (Este valor **não é referente ao ao destino final, mas ao MAC Address do Roteador da rede!**)  
+**Mac Address de Origem:** 00:0C:29:76:43:E1  
+**Protocolo:** 0800 (**Protocolo IP**)  
+**Payload:** 4 **em diante..**
+
+**Por exemplo, é possível também converter o endereço de Destino e Origem do pacote em um número de IP através do seguinte comando:**
+
+**Endereço de Origem:**
+
+```shell
+printf "%d.%d.%d.%d\n" 0xC0 0XA8 0X00 0XC8
+```
+
+**DESCOBRINDO AS FLAGS ATIVAS**
+
+O **byte 48** nos informa qual a flag está sendo utilizada. No entanto, seu valor está em **hexadecimal**, e é necessário **convertê-lo** para obter um valor de referência que possa ser utilizado na leitura da tabela abaixo:
+
+**URG** -> 32
+**ACK** -> 16
+**PSH** -> 8
+**RST** -> 4
+**SYN** -> 2
+**FIN** -> 1
+
+Ou seja, o valor do **byte 18** dentro do pacote, será **a soma das flags**, exemplo, imagine que o valor seja **18**, ou seja, **SYN** + **ACK**
