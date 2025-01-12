@@ -1,5 +1,1 @@
-Here you can say lots of fun things about your site.
-
-Maybe say a some things about yourself.
-
-Or maybe what you plan to blog about.
+Hi there, my name is Tales, I am student and cyber security researcher. I set up this website to keep notes of my path learning proccess, hope you enjoy! Feel free to contact me in case of any help.
